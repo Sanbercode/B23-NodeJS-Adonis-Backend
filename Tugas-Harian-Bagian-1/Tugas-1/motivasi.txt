@@ -1,0 +1,4 @@
+Alasan saya mengikuti bootcamp Nodejs Adonis ini ialah karena saya ingin belajar tentang backend lebih dalam,
+penggunaan restAPI, dan menjadi awal sebelum saya belajar frontend seperti vuejs dan reactjs. harapannya kedepan
+yaitu saya ingin bisa mengimplementasikan dan memahami lebih dalam tentang restAPI supaya bisa menjadi backend
+developer yang handal.
