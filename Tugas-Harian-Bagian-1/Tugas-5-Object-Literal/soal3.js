@@ -9,7 +9,13 @@ let naikAngkot = (listPenumpang) => {
         let pointB = rute.indexOf(listPenumpang[i][2]);
 
         //menghitung jumlah biaya angkot
-        let jarak = pointB - pointA;
+        let jarak = 0;
+        if(pointA < pointB){
+            jarak = pointB - pointA;
+        } else {
+            jarak = pointA - pointB;
+        }
+
         let bayar = jarak * 2000;
 
         obj = {
@@ -25,4 +31,4 @@ let naikAngkot = (listPenumpang) => {
     return output;
 }
 
-console.log(naikAngkot([['Dimitri', 'B', 'F'], ['Icha', 'A', 'B']]));
+console.log(naikAngkot([['Dimitri', 'F', 'B'], ['Icha', 'A', 'B']]));
