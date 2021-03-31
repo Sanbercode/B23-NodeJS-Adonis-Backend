@@ -20,4 +20,4 @@ console.log("\n=====================\n");
 
 let clock = new Clock({template: 'h:m:s'});
 clock.start();
-clock.stop();
+clock.stop(); 
