@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Bondra",
+    "password": 123456,
+    "role": "admin",
+    "isLogin": true
+  },
+  {
+    "name": "Hanif",
+    "password": 123456,
+    "role": "trainer",
+    "isLogin": false,
+    "students": [
+      {
+        "name": "Rully",
+        "class": "Adonis"
+      },
+      {
+        "name": "Rian",
+        "class": "Laravel"
+      },
+      {
+        "name": "Fariz",
+        "class": "Reactjs"
+      }
+    ]
+  },
+  {
+    "name": "Edgar",
+    "password": 123456,
+    "role": "trainer",
+    "isLogin": true,
+    "students": [
+      {
+        "name": "Athallah",
+        "class": "UI/UX"
+      },
+      {
+        "name": "Bagas",
+        "class": "Agile"
+      }
+    ]
+  }
+]

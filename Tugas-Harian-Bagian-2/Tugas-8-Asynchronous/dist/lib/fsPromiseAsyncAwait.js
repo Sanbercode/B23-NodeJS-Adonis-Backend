@@ -44,7 +44,7 @@ var addSiswa = /*#__PURE__*/function () {
               break;
             }
 
-            if (theData['students'].length === 0) {
+            if (!('students' in theData)) {
               theData['students'] = [{
                 name: name
               }];

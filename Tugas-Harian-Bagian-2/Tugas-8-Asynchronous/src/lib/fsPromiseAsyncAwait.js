@@ -12,7 +12,7 @@ export const addSiswa = async (name, trainerName) => {
         let theData = realData[findData];
         let theAdmin = realData[0];
         if(theAdmin.role === 'admin' && theAdmin.isLogin){
-            if(theData['students'].length === 0){
+            if(!('students' in theData)){
                 theData['students'] = [{name}];
             } else {
                 theData['students'].push({name});
