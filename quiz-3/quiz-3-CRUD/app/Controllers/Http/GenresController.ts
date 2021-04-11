@@ -39,9 +39,15 @@ export default class GenresController {
     const id = params.id;
 
     try {
-      const data = await Database.query().select([
+      let data = await Database.query().select([
         'id', 'name'
       ]).from('genres').where('id', id).firstOrFail();
+
+      const dataMovies = await Database.query().select([
+        'id', 'title', 'resume', 'release_date'
+      ]).from('movies').where('genre_id', id);
+
+      data['movies'] = dataMovies;
 
       return response.status(200).json({
         response_code: "00",
