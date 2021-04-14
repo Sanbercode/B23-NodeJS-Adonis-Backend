@@ -1,5 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, column, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import Field from "App/Models/Field";
+import type { HasMany } from "@ioc:Adonis/Lucid/Relations";
+import Booking from "App/Models/Booking";
 
 export default class Venue extends BaseModel {
   @column({ isPrimary: true })
@@ -26,4 +29,15 @@ export default class Venue extends BaseModel {
     serialize: value  => value.toFormat('dd LLL yyyy HH:mm:ss')
   })
   public updatedAt: DateTime
+
+  public static settings = {
+    loadApp: true
+  }
+
+  @hasMany(() => Field)
+  public fields: HasMany<typeof Field>
+
+  @hasMany(() => Booking)
+  public bookings: HasMany<typeof Booking>
+
 }
