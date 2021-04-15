@@ -16,13 +16,19 @@ export default class User extends BaseModel {
   public id: string
 
   @column()
-  public full_name: string
+  public fullName: string
 
   @column()
   public email: string
 
   @column({ serializeAs: null })
   public password: string
+
+  @column()
+  public role: string
+
+  @column.dateTime()
+  public verifiedAt: DateTime
 
   @column()
   public phone: string

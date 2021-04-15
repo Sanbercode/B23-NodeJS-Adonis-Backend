@@ -2,8 +2,9 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Booking from "App/Models/Booking";
 import Field from "App/Models/Field";
 import Venue from "App/Models/Venue";
-import Database from "@ioc:Adonis/Lucid/Database";
 import {ManyToManyQueryBuilder} from "@adonisjs/lucid/build/src/Orm/Relations/ManyToMany/QueryBuilder";
+import {HasManyQueryBuilder} from "@adonisjs/lucid/build/src/Orm/Relations/HasMany/QueryBuilder";
+import PlayerBooking from "App/Models/PlayerBooking";
 
 export default class BookingsController {
 
@@ -12,7 +13,7 @@ export default class BookingsController {
       const venueId = params.venue_id;
 
       let data = await Venue.query()
-        .preload('bookings', (query: ManyToManyQueryBuilder) => {
+        .preload('bookings', (query: HasManyQueryBuilder) => {
           query.select(['id', 'field_id', 'play_date_start', 'play_date_finish', 'booking_user_id'])
         })
         .select(['id','name', 'address', 'phone'])
@@ -60,15 +61,20 @@ export default class BookingsController {
     }
   }
 
-  public async books ({response, auth, params}: HttpContextContract) {
+  public async joinBooking ({response, auth, params}: HttpContextContract) {
     // @ts-ignore
-    const player_id = auth.user.$original.id;
-    const booking_id = params['booking_id'];
+    const playerId = auth.user.$original.id;
+    const bookingId = params['booking_id'];
 
     try {
-      await Database.table('player_bookings').insert({
-        booking_id, player_id
-      });
+      const join = await PlayerBooking.query().where('player_id', playerId).andWhere('booking_id', bookingId).first();
+      if (!join) {
+        await PlayerBooking.create({
+          bookingId, playerId
+        });
+      } else {
+        throw Error;
+      }
 
       return response.json({
         response_code: "00",
@@ -83,22 +89,26 @@ export default class BookingsController {
   }
 
   public async detailBooking ({response, params}: HttpContextContract) {
+    try {
+      const data = await Booking.query().preload('players', (query: ManyToManyQueryBuilder) => {
+        query.select(['id', 'full_name', 'email'])
+      }).select(
+        ['id', 'field_id', 'play_date_start', 'play_date_finish', 'booking_user_id']
+      ).where('id', params.booking_id).firstOrFail();
 
-    const data = await Booking.query().preload('players', (query: ManyToManyQueryBuilder) => {
-      query.select(['id', 'full_name', 'email'])
-    }).select(
-      ['id', 'field_id', 'play_date_start', 'play_date_finish', 'booking_user_id']
-    ).where('id', params.booking_id).firstOrFail();
+      const player_counts = data.players.length;
+      data.$original['players_count'] = player_counts;
+      data.$original['players'] = data.$preloaded['players']
 
-    const player_counts = data.players.length;
-    data.$original['player_counts'] = player_counts;
-    data.$original['players'] = data.$preloaded['players']
-
-    return response.json({
-      response_code: "00",
-      response_message: "Berhasil get data booking by id",
-      data: data.$original
-    })
+      return response.json({
+        response_code: "00",
+        response_message: "Berhasil get data booking by id",
+        data: data.$original
+      });
+    } catch (errors) {
+      return response.status(400).json({
+        error_message: errors.message
+      })
+    }
   }
-
 }

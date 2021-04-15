@@ -21,12 +21,15 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('venues', 'VenuesController').apiOnly().middleware({'*': 'auth'});
-  Route.resource('venues.fields', 'FieldsController').apiOnly().middleware({'*': 'auth'});
+  Route.resource('venues', 'VenuesController').apiOnly().middleware({'*': ['auth', 'verify', 'role:admin,venue_owner']});
+  Route.resource('venues.fields', 'FieldsController').apiOnly().middleware({'*': ['auth', 'verify', 'role:admin,venue_owner']});
 
   Route.post('/register', 'AuthController.register');
   Route.post('/login', 'AuthController.login');
-  Route.resource('venues.bookings', 'BookingsController').only(['store', 'index']).middleware({'*': 'auth'})
-  Route.post('/venues/:venue_id/bookings/:booking_id', 'BookingsController.books').middleware('auth');
-  Route.get('/venues/:venue_id/bookings/:booking_id', 'BookingsController.detailBooking').middleware('auth');
+  Route.post('/verification', 'AuthController.verification');
+  Route.post('/regenerate-otp', 'AuthController.regenerateOtp');
+
+  Route.resource('venues.bookings', 'BookingsController').only(['store', 'index']).middleware({'*': ['auth', 'verify'], 'store': 'role:admin,user', 'index': 'role:admin'})
+  Route.post('/venues/:venue_id/bookings/:booking_id', 'BookingsController.joinBooking').middleware(['auth', 'verify', 'role:admin,user']);
+  Route.get('/venues/:venue_id/bookings/:booking_id', 'BookingsController.detailBooking').middleware(['auth', 'verify', 'role:admin']);
 }).prefix('/api');
