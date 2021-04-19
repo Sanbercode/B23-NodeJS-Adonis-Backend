@@ -7,18 +7,63 @@ import {rules, schema} from "@ioc:Adonis/Core/Validator";
 import Mail from "@ioc:Adonis/Addons/Mail";
 
 export default class AuthController {
+  /**
+   * @swagger
+   * /api/v1/login:
+   *   post:
+   *     description: Authenticate verificated user
+   *     tags:
+   *       - Auth
+   *     summary: Authentication Login API
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/x-www-form-urlencoded:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *             required:
+   *               - email
+   *               - password
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *             required:
+   *               - email
+   *               - password
+   *     responses:
+   *       200:
+   *         description: Login Successfull
+   *       422:
+   *         description: Request Invalid
+   *       404:
+   *         description: User Doesn't Exists
+   *       401:
+   *         description: User Credentials Wrong (Unauthenticated)
+   */
   public async login ({request, auth, response}: HttpContextContract) {
     const email = request.input('email');
     const password = request.input('password');
 
-    const user = await User.query().where('email', email).firstOrFail();
+    const loginSchema = schema.create({
+      email: schema.string({}, [
+        rules.email()
+      ]),
+      password: schema.string({}, [
+        rules.minLength(6)
+      ])
+    });
 
-    if(!user.verifiedAt) {
-      return response.status(401).json({
-        response_code: "01",
-        response_message: "Silahkan verifikasi terlebih dahulu"
-      });
-    }
+    await request.validate({schema: loginSchema});
 
     const token = await auth.use('api').attempt(email, password, {
       expiresIn: '1 days',
@@ -31,16 +76,40 @@ export default class AuthController {
     })
   }
 
+  /**
+   * @swagger
+   * /api/v1/register:
+   *   post:
+   *     description: Registering new user
+   *     tags:
+   *       - Auth
+   *     summary: Authentication Register API
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/x-www-form-urlencoded:
+   *           schema:
+   *             $ref: '#definitions/User'
+   *         application/json:
+   *           schema:
+   *             $ref: '#definitions/User'
+   *     responses:
+   *       '201':
+   *         description: Register Success, Please Verify
+   *       '422':
+   *         description: Request Body Invalid
+   * */
   public async register ({request, response}: HttpContextContract) {
     let email = request.input('email');
     let password = request.input('password');
     let fullName = request.input('full_name');
     let phone = request.input('phone');
+    let role = request.input('role');
 
     await request.validate(UserValidator);
 
     const data = await User.create({
-      email, password, role: 'user', fullName, phone
+      email, password, role, fullName, phone
     });
 
     const digits = '0123456789';
@@ -67,12 +136,46 @@ export default class AuthController {
 
     return response.status(201).json({
       response_code: "00",
-      response_message: "Register Success, Please Verify",
-      data
+      response_message: "Register Success, Please Verify"
     });
 
   }
 
+  /**
+   * @swagger
+   * /api/v1/verification:
+   *   post:
+   *     description: Verificate the new registered user using OTP
+   *     tags:
+   *       - Auth
+   *     summary: Authentication Verification API
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/x-www-form-urlencoded:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               otp_code:
+   *                 type: number
+   *             required:
+   *               - otp_code
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               otp_code:
+   *                 type: number
+   *             required:
+   *               - otp_code
+   *     responses:
+   *       200:
+   *         description: Verification Success
+   *       400:
+   *         description: OTP Code Expired, Please Regenerate OTP
+   *       401:
+   *         description: Invalid OTP Code
+   * */
   public async verification ({request, response}: HttpContextContract) {
     const otpCode = request.input('otp_code');
 
@@ -94,7 +197,7 @@ export default class AuthController {
     const now = (DateTime.now()).toString();
     const expires = otp.expiresAt.toString();
     if (now > expires) {
-      return response.status(401).json({
+      return response.status(400).json({
         response_code: "01",
         response_message: "OTP Code Expired, Please Regenerate OTP"
       })
@@ -114,6 +217,41 @@ export default class AuthController {
     })
   }
 
+  /**
+   * @swagger
+   * /api/v1/regenerate-otp:
+   *   post:
+   *     description: Updating expiry date of expired OTP code
+   *     tags:
+   *       - Auth
+   *     summary: Authentication Regenerate-OTP API
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/x-www-form-urlencoded:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *             required:
+   *               - email
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *             required:
+   *               - email
+   *     responses:
+   *       200:
+   *         description: OTP Code successfully regenerated
+   *       400:
+   *         description: Email is already verified
+   *       401:
+   *         description: Email Address Not Found
+   * */
   public async regenerateOtp ({request, response}: HttpContextContract) {
     const email = request.input('email');
 
@@ -128,7 +266,7 @@ export default class AuthController {
     const user = await User.query().where('email', email).first();
 
     if (!user) {
-      return response.status(400).json({
+      return response.status(401).json({
         response_code: "01",
         response_message: "Email Address Not Found"
       })

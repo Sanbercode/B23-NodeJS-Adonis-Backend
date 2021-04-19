@@ -5,7 +5,7 @@ export default class Users extends BaseSchema {
 
   public async up () {
     this.schema.table(this.tableName, (table) => {
-      table.enum('role', ['admin', 'venue_owner', 'user']).after('password').nullable();
+      table.enum('role', ['venue_owner', 'user']).after('password').nullable();
     })
   }
 

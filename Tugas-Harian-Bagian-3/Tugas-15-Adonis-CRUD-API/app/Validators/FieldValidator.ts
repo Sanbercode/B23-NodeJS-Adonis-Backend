@@ -26,7 +26,7 @@ export default class FieldValidator {
 	 */
   public schema = schema.create({
     name: schema.string(),
-    type:schema.enum(['futsal', 'minisoccer', 'basketball'])
+    type:schema.enum(['futsal', 'minisoccer', 'basketball', 'soccer', 'volleyball'])
   });
 
 	/**

@@ -3,6 +3,28 @@ import {BaseModel, column, manyToMany} from '@ioc:Adonis/Lucid/Orm'
 import type {ManyToMany} from "@ioc:Adonis/Lucid/Relations";
 import User from "App/Models/User";
 
+/**
+ *  @swagger
+ *  definitions:
+ *    Booking:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: string
+ *        field_id:
+ *          type: number
+ *        user_id:
+ *          type: string
+ *        play_date_start:
+ *          type: datetime
+ *        play_date_finish:
+ *          type: datetime
+ *      required:
+ *        - field_id
+ *        - play_date_start
+ *        - play_date_finish
+ */
+
 export default class Booking extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -13,9 +35,9 @@ export default class Booking extends BaseModel {
   public fieldId: number
 
   @column({
-    columnName: 'venue_id'
+    columnName: 'user_id'
   })
-  public venueId: number
+  public userId: string
 
   @column.dateTime({
     columnName: 'play_date_start'
@@ -26,11 +48,6 @@ export default class Booking extends BaseModel {
     columnName: 'play_date_finish'
   })
   public playDateFinish: DateTime
-
-  @column({
-    columnName: 'booking_user_id'
-  })
-  public bookingUserId: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -43,7 +60,7 @@ export default class Booking extends BaseModel {
     localKey: 'id',
     pivotForeignKey: 'booking_id',
     relatedKey: 'id',
-    pivotRelatedForeignKey: 'player_id'
+    pivotRelatedForeignKey: 'user_id'
   })
   public players: ManyToMany<typeof User>
 }

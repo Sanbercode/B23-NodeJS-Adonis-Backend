@@ -9,6 +9,32 @@ import { uuid } from 'uuidv4';
 import Booking from "App/Models/Booking";
 import type {ManyToMany} from "@ioc:Adonis/Lucid/Relations";
 
+/**
+ *  @swagger
+ *  definitions:
+ *    User:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: string
+ *        full_name:
+ *          type: string
+ *        email:
+ *          type: string
+ *        password:
+ *          type: string
+ *        role:
+ *          type: string
+ *        phone:
+ *          type: string
+ *      required:
+ *        - full_name
+ *        - email
+ *        - password
+ *        - role
+ *        - phone
+ */
+
 export default class User extends BaseModel {
   public static selfAssignPrimaryKey = true
 
@@ -57,7 +83,7 @@ export default class User extends BaseModel {
   @manyToMany(() => Booking, {
     pivotTable: 'player_bookings',
     localKey: 'id',
-    pivotForeignKey: 'player_id',
+    pivotForeignKey: 'user_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'booking_id'
   })

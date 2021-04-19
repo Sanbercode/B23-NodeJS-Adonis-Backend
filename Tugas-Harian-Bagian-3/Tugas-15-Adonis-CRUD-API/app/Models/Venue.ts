@@ -1,12 +1,37 @@
 import { DateTime } from 'luxon'
-import {BaseModel, column, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, column, hasMany, hasManyThrough} from '@ioc:Adonis/Lucid/Orm'
 import Field from "App/Models/Field";
-import type { HasMany } from "@ioc:Adonis/Lucid/Relations";
+import type {HasMany, HasManyThrough} from "@ioc:Adonis/Lucid/Relations";
 import Booking from "App/Models/Booking";
+
+/**
+ *  @swagger
+ *  definitions:
+ *    Venue:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: string
+ *        user_id:
+ *          type: string
+ *        name:
+ *          type: string
+ *        address:
+ *          type: string
+ *        phone:
+ *          type: string
+ *      required:
+ *        - name
+ *        - address
+ *        - phone
+ */
 
 export default class Venue extends BaseModel {
   @column({ isPrimary: true })
   public id: number
+
+  @column()
+  public userId: string
 
   @column()
   public name: string;
@@ -37,7 +62,7 @@ export default class Venue extends BaseModel {
   @hasMany(() => Field)
   public fields: HasMany<typeof Field>
 
-  @hasMany(() => Booking)
-  public bookings: HasMany<typeof Booking>
+  @hasManyThrough([() => Booking, () => Field])
+  public bookings: HasManyThrough<typeof Booking>
 
 }
