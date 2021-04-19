@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node ace build --production",
-    "start": "node server.js",
-    "dev": "node ace serve --watch"
+    "build": "node ace build --prod",
+    "start": "node ace serve --watch",
+    "start:prod": "node ./build/server.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^3.1.1",
@@ -26,10 +26,14 @@
     "bcrypt": "^5.0.1",
     "luxon": "^1.26.0",
     "mysql": "^2.18.1",
+    "pg": "^8.6.0",
     "phc-bcrypt": "^1.0.6",
     "proxy-addr": "^2.0.6",
     "reflect-metadata": "^0.1.13",
     "source-map-support": "^0.5.19",
     "uuidv4": "^6.2.7"
+  },
+  "engines": {
+    "node": "14.15.4"
   }
 }
